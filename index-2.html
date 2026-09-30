@@ -1,0 +1,4760 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cliker Simulator</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#111;
+  color:white;
+  text-align:center;
+  overflow-x:hidden;
+}
+
+h1{
+  margin:18px 0 5px;
+  font-size:28px;
+}
+
+#pontos{
+  font-size:26px;
+  font-weight:bold;
+  margin-top:12px;
+}
+
+#porClique{
+  font-size:15px;
+  color:#bbb;
+}
+
+#botaoClique{
+  margin-top:25px;
+  width:180px;
+  height:180px;
+  border-radius:50%;
+  border:none;
+  background:#247cff;
+  color:white;
+  font-size:25px;
+  font-weight:bold;
+  box-shadow:0 0 25px #247cff;
+}
+
+#botaoClique:active{
+  transform:scale(.94);
+}
+
+#area{
+  width:95%;
+  max-width:500px;
+  margin:25px auto 80px;
+}
+
+.secao{
+  margin-top:25px;
+  font-size:22px;
+  font-weight:bold;
+}
+
+.item{
+  background:#222;
+  border:1px solid #444;
+  border-radius:12px;
+  margin:10px 0;
+  padding:12px;
+  text-align:left;
+}
+
+.item button{
+  width:100%;
+  margin-top:8px;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:#333;
+  color:white;
+  font-weight:bold;
+}
+
+.item button:disabled{
+  opacity:.45;
+}
+
+.preco{
+  color:#ffd43b;
+}
+
+.pet{
+  border:1px solid #555;
+}
+
+#petsAtivos{
+  position:fixed;
+  top:10px;
+  right:8px;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  font-size:25px;
+  z-index:5;
+}
+
+#reiniciar{
+  position:fixed;
+  bottom:7px;
+  left:7px;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  border:1px solid #555;
+  background:#222;
+  color:#aaa;
+  font-size:15px;
+  padding:0;
+  z-index:20;
+}
+
+#mensagem{
+  min-height:20px;
+  margin-top:10px;
+  color:#aaa;
+  font-size:14px;
+}
+
+/* =========================
+   BOTÃO DA LOJA
+========================= */
+
+#botaoLoja{
+  position:fixed;
+  right:12px;
+  bottom:12px;
+  width:58px;
+  height:58px;
+  border-radius:15px;
+  border:2px solid #555;
+  background:#222;
+  color:white;
+  font-size:29px;
+  z-index:50;
+  box-shadow:0 4px 15px #000;
+}
+
+/* =========================
+   JANELA DA LOJA
+========================= */
+
+#loja{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.82);
+  z-index:40;
+  padding:25px 12px;
+  overflow-y:auto;
+}
+
+#loja.caixaAberta{
+  display:block;
+}
+
+#lojaCaixa{
+  width:100%;
+  max-width:430px;
+  margin:20px auto;
+  background:#181818;
+  border:1px solid #444;
+  border-radius:18px;
+  padding:15px;
+  box-shadow:0 0 30px #000;
+}
+
+#lojaTitulo{
+  font-size:25px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+#fecharLoja{
+  position:absolute;
+  right:18px;
+  top:15px;
+  border:none;
+  background:#333;
+  color:white;
+  border-radius:50%;
+  width:35px;
+  height:35px;
+  font-size:18px;
+}
+
+/* GEMAS DA LOJA */
+
+#gemasLoja{
+  color:#67d9ff;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+/* ABAS */
+
+#abasLoja{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:5px;
+  margin-bottom:12px;
+}
+
+.abaLoja{
+  border:none;
+  border-radius:8px;
+  padding:9px 3px;
+  background:#292929;
+  color:white;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.abaLoja.ativa{
+  background:#247cff;
+}
+
+/* DESTAQUE */
+
+.destaque{
+  border:2px solid #ffd43b;
+  background:#292000;
+}
+
+/* RADIOATIVO */
+
+.radioativo{
+  border:2px solid #75ff75;
+  background:#102010;
+}
+
+.limitado{
+  color:#75ff75;
+  font-weight:bold;
+}
+
+/* =========================
+   CONTEÚDO DA LOJA
+========================= */
+
+.abaConteudo{
+  display:none;
+}
+
+.abaConteudo.ativo{
+  display:block;
+}
+
+.produtoLoja{
+  background:#222;
+  border:1px solid #444;
+  border-radius:12px;
+  padding:14px;
+  margin:10px 0;
+  text-align:left;
+}
+
+.produtoEmoji{
+  font-size:35px;
+  text-align:center;
+  margin-bottom:5px;
+}
+
+.produtoNome{
+  font-size:18px;
+  font-weight:bold;
+}
+
+.produtoDescricao{
+  color:#aaa;
+  font-size:13px;
+  margin:5px 0;
+}
+
+.produtoPreco{
+  color:#ffd43b;
+  font-weight:bold;
+}
+
+.produtoLoja button{
+  width:100%;
+  margin-top:9px;
+  padding:11px;
+  border:none;
+  border-radius:8px;
+  background:#247cff;
+  color:white;
+  font-weight:bold;
+}
+
+.produtoLoja button:disabled{
+  opacity:.4;
+}
+
+/* =========================
+   PETS DA LOJA
+========================= */
+
+.petComum{
+  border-left:4px solid #aaa;
+}
+
+.petMorcego{
+  border-left:4px solid #777;
+}
+
+.petUnicornio{
+  border-left:4px solid #ff8cff;
+}
+
+.chance{
+  color:#bbb;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎮 Cliker Simulator</h1>
+
+<div id="pontos">0 PT</div>
+<div id="porClique">+1 PT por clique</div>
+
+<button id="botaoClique">CLIQUE!</button>
+
+<div id="mensagem"></div>
+
+<div id="area">
+
+  <div class="secao">⬆️ UPGRADES</div>
+  <div id="upgrades"></div>
+
+  <div class="secao">🐾 PETS</div>
+  <div id="pets"></div>
+
+</div>
+
+<div id="petsAtivos"></div>
+
+<button id="reiniciar" title="Reiniciar">↩</button>
+
+
+<!-- =========================
+     BOTÃO DA LOJA
+========================= -->
+
+<button id="botaoLoja">🛒</button>
+
+
+<!-- =========================
+     LOJA
+========================= -->
+
+<div id="loja">
+
+  <button id="fecharLoja">✕</button>
+
+  <div id="lojaCaixa">
+
+    <div id="lojaTitulo">🛒 LOJA</div>
+
+    <div id="gemasLoja">
+      💎 Gemas: <span id="quantidadeGemas">0</span>
+    </div>
+
+    <div id="abasLoja">
+
+      <button class="abaLoja ativa" data-aba="destaque">
+        🔥 DESTAQUE
+      </button>
+
+      <button class="abaLoja" data-aba="petsLoja">
+        🐈‍⬛ PETS
+      </button>
+
+      <button class="abaLoja" data-aba="gemas">
+        💎 GEMAS
+      </button>
+
+      <button class="abaLoja" data-aba="inicio">
+        🏠 INÍCIO
+      </button>
+
+    </div>
+
+
+    <!-- =========================
+         DESTAQUE
+    ========================= -->
+
+    <div id="destaque" class="abaConteudo ativo">
+
+      <div class="produtoLoja destaque radioativo">
+
+        <div class="produtoEmoji">☢️</div>
+
+        <div class="produtoNome">
+          PET RADIOATIVO
+        </div>
+
+        <div class="limitado">
+          ⏳ ITEM LIMITADO!
+        </div>
+
+        <div class="produtoDescricao">
+          Um pet extremamente raro.
+          Multiplica seus cliques por 100×.
+        </div>
+
+        <div class="produtoPreco">
+          💎 5 GEMAS
+        </div>
+
+        <button id="comprarRadioativo">
+          COMPRAR ☢️
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         PETS
+    ========================= -->
+
+    <div id="petsLoja" class="abaConteudo">
+
+      <div class="produtoLoja petComum">
+
+        <div class="produtoEmoji">🙂</div>
+
+        <div class="produtoNome">
+          Pet Clássico
+        </div>
+
+        <div class="produtoDescricao">
+          Multiplica os cliques por 2×.
+        </div>
+
+        <div class="chance">
+          🎲 Chance: 70%
+        </div>
+
+        <div class="produtoPreco">
+          💎 1 GEMA
+        </div>
+
+        <button onclick="comprarPetAleatorio()">
+          COMPRAR PET ALEATÓRIO
+        </button>
+
+      </div>
+
+
+      <div class="produtoLoja petMorcego">
+
+        <div class="produtoEmoji">🦇</div>
+
+        <div class="produtoNome">
+          Morcego
+        </div>
+
+        <div class="produtoDescricao">
+          Multiplica os cliques por 8×.
+        </div>
+
+        <div class="chance">
+          🎲 Chance: 50%
+        </div>
+
+        <div class="produtoPreco">
+          💎 1 GEMA
+        </div>
+
+      </div>
+
+
+      <div class="produtoLoja petUnicornio">
+
+        <div class="produtoEmoji">🦄</div>
+
+        <div class="produtoNome">
+          Unicórnio
+        </div>
+
+        <div class="produtoDescricao">
+          O pet mais raro!
+          Multiplica os cliques por 50×.
+        </div>
+
+        <div class="chance">
+          🎲 Chance: 10%
+        </div>
+
+        <div class="produtoPreco">
+          💎 1 GEMA
+        </div>
+
+      </div>
+
+      <div class="produtoLoja">
+        <b>🎲 Como funciona?</b>
+        <br><br>
+        Compre um pet aleatório por 1 💎.
+        Você pode receber 🙂, 🦇 ou 🦄!
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         GEMAS
+    ========================= -->
+
+    <div id="gemas" class="abaConteudo">
+
+      <div class="produtoLoja">
+
+        <div class="produtoEmoji">💎</div>
+
+        <div class="produtoNome">
+          1 Gema
+        </div>
+
+        <div class="produtoDescricao">
+          Use para comprar pets e itens especiais.
+        </div>
+
+        <div class="produtoPreco">
+          💰 1.000 PT
+        </div>
+
+        <button onclick="comprarGemas(1,1000n)">
+          COMPRAR 1 💎
+        </button>
+
+      </div>
+
+
+      <div class="produtoLoja">
+
+        <div class="produtoEmoji">💎💎💎💎💎</div>
+
+        <div class="produtoNome">
+          5 Gemas
+        </div>
+
+        <div class="produtoDescricao">
+          Um pacote com 5 gemas.
+        </div>
+
+        <div class="produtoPreco">
+          💰 5.000 PT
+        </div>
+
+        <button onclick="comprarGemas(5,5000n)">
+          COMPRAR 5 💎
+        </button>
+
+      </div>
+
+
+      <div class="produtoLoja">
+
+        <div class="produtoEmoji">💎💎💎💎💎💎💎💎💎💎</div>
+
+        <div class="produtoNome">
+          10 Gemas
+        </div>
+
+        <div class="produtoDescricao">
+          Um pacote com 10 gemas.
+        </div>
+
+        <div class="produtoPreco">
+          💰 10.000 PT
+        </div>
+
+        <button onclick="comprarGemas(10,10000n)">
+          COMPRAR 10 💎
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         INÍCIO
+    ========================= -->
+
+    <div id="inicio" class="abaConteudo">
+
+      <div class="produtoLoja">
+
+        <div class="produtoEmoji">🏠</div>
+
+        <div class="produtoNome">
+          Bem-vindo à Loja!
+        </div>
+
+        <div class="produtoDescricao">
+          Escolha uma categoria acima para
+          comprar gemas, pets e itens especiais.
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   SISTEMA PRINCIPAL
+========================= */
+
+let pontos = 0n;
+
+let pontosPorClique = 1n;
+let automatico = 0n;
+
+let multiplicador = 1n;
+let multiplicadorPets = 1n;
+
+let gemas = 0;
+
+let comprados = [];
+let petsComprados = [];
+
+
+/* =========================
+   PETS ESPECIAIS DA LOJA
+========================= */
+
+let petsLoja = [];
+
+
+/* =========================
+   FORMATADOR
+========================= */
+
+function formatarNumero(numero){
+
+  numero = BigInt(numero);
+
+  if(numero < 1000n){
+    return numero.toString();
+  }
+
+  const unidades = [
+    ["Mil", 10n**3n],
+    ["M", 10n**6n],
+    ["B", 10n**9n],
+    ["T", 10n**12n],
+    ["Qa", 10n**15n],
+    ["Qi", 10n**18n],
+    ["Sx", 10n**21n],
+    ["Sp", 10n**24n],
+    ["Oc", 10n**27n],
+    ["No", 10n**30n],
+    ["Dc", 10n**33n],
+    ["Ud", 10n**36n],
+    ["Dd", 10n**39n],
+    ["Td", 10n**42n],
+    ["Qad",10n**45n],
+    ["Qid",10n**48n],
+    ["Sxd",10n**51n],
+    ["Spd",10n**54n],
+    ["Ocd",10n**57n],
+    ["Nod",10n**60n],
+    ["Vg", 10n**63n]
+  ];
+
+  for(let i=unidades.length-1;i>=0;i--){
+
+    if(numero >= unidades[i][1]){
+
+      let valor =
+        Number(numero) / Number(unidades[i][1]);
+
+      if(valor >= 1000){
+        valor = Math.floor(valor);
+      }else{
+        valor = valor.toFixed(1);
+      }
+
+      return valor + " " + unidades[i][0];
+    }
+  }
+
+  return numero.toString();
+}
+
+
+/* =========================
+   UPGRADES
+========================= */
+
+const upgrades = [
+
+  {nome:"Dedo melhor",preco:50n,tipo:"clique",valor:1n},
+  {nome:"Clique duplo",preco:200n,tipo:"clique",valor:1n},
+  {nome:"Primeiro automático",preco:800n,tipo:"auto",valor:1n},
+  {nome:"Clique reforçado",preco:3000n,tipo:"clique",valor:2n},
+  {nome:"Mini máquina",preco:10000n,tipo:"auto",valor:2n},
+  {nome:"Clique potente",preco:30000n,tipo:"clique",valor:3n},
+  {nome:"Máquina melhorada",preco:100000n,tipo:"auto",valor:5n},
+  {nome:"Super clique",preco:300000n,tipo:"clique",valor:5n},
+  {nome:"Gerador",preco:1000000n,tipo:"auto",valor:15n},
+  {nome:"Clique avançado",preco:3000000n,tipo:"clique",valor:8n},
+  {nome:"Gerador II",preco:10000000n,tipo:"auto",valor:40n},
+  {nome:"Mega clique",preco:30000000n,tipo:"clique",valor:12n},
+  {nome:"Gerador III",preco:100000000n,tipo:"auto",valor:100n},
+  {nome:"Clique extremo",preco:500000000n,tipo:"clique",valor:20n},
+  {nome:"Central automática",preco:2000000000n,tipo:"auto",valor:300n},
+  {nome:"Clique absurdo",preco:10000000000n,tipo:"clique",valor:35n},
+  {nome:"Central II",preco:50000000000n,tipo:"auto",valor:1000n},
+  {nome:"Clique lendário",preco:300000000000n,tipo:"clique",valor:60n},
+  {nome:"Central III",preco:2000000000000n,tipo:"auto",valor:5000n},
+  {nome:"Último clique",preco:20000000000000n,tipo:"clique",valor:100n}
+
+];
+
+
+/* =========================
+   PETS NORMAIS
+========================= */
+
+const pets = [
+
+  {nome:"🐶 Cachorro",preco:100000000000000n,multiplicador:10n},
+  {nome:"🐱 Gato",preco:10000000000000000n,multiplicador:100n},
+  {nome:"🐺 Lobo",preco:1000000000000000000n,multiplicador:1000n},
+  {nome:"🦊 Raposa",preco:100000000000000000000n,multiplicador:10000n},
+  {nome:"🐉 Dragão",preco:10000000000000000000000n,multiplicador:100000n},
+  {nome:"👑 Rei",preco:1000000000000000000000000n,multiplicador:10000000n},
+  {nome:"🌌 Guardião",preco:100000000000000000000000000n,multiplicador:1000000000n},
+  {nome:"✨ Celestial",preco:10000000000000000000000000000n,multiplicador:1000000000000n},
+  {nome:"🌠 Divino",preco:1000000000000000000000000000000n,multiplicador:10000000000000000n},
+  {nome:"😇 Anjo",preco:10n**63n,multiplicador:1000000000000000000n}
+
+];
+
+
+/* =========================
+   PETS DA LOJA
+========================= */
+
+const petsAleatorios = [
+
+  {
+    emoji:"🙂",
+    nome:"Pet Clássico",
+    multiplicador:2n,
+    peso:70
+  },
+
+  {
+    emoji:"🦇",
+    nome:"Morcego",
+    multiplicador:8n,
+    peso:50
+  },
+
+  {
+    emoji:"🦄",
+    nome:"Unicórnio",
+    multiplicador:50n,
+    peso:10
+  }
+
+];
+
+
+/* =========================
+   SOM
+========================= */
+
+let audioContext = null;
+
+function tocarSomClique(){
+
+  if(audioContext === null){
+    audioContext =
+      new (window.AudioContext ||
+      window.webkitAudioContext)();
+  }
+
+  if(audioContext.state === "suspended"){
+    audioContext.resume();
+  }
+
+  const agora = audioContext.currentTime;
+
+  const som = audioContext.createOscillator();
+  const volume = audioContext.createGain();
+
+  som.type = "square";
+
+  som.frequency.setValueAtTime(180,agora);
+  som.frequency.exponentialRampToValueAtTime(
+    80,
+    agora + 0.035
+  );
+
+  volume.gain.setValueAtTime(.12,agora);
+  volume.gain.exponentialRampToValueAtTime(
+    .001,
+    agora + .045
+  );
+
+  som.connect(volume);
+  volume.connect(audioContext.destination);
+
+  som.start(agora);
+  som.stop(agora+.045);
+}
+
+
+/* =========================
+   CLIQUE
+========================= */
+
+document.getElementById("botaoClique").onclick=function(){
+
+  tocarSomClique();
+
+  let ganho =
+  pontosPorClique *
+  multiplicador *
+  multiplicadorPets *
+  BigInt(obterMultiplicadorEventos());
+
+  pontos += ganho;
+
+  atualizar();
+};
+
+
+/* =========================
+   UPGRADES
+========================= */
+
+function criarUpgrades(){
+
+  const div=document.getElementById("upgrades");
+
+  div.innerHTML="";
+
+  upgrades.forEach((u,index)=>{
+
+    const item=document.createElement("div");
+
+    item.className="item";
+
+    const comprado=comprados.includes(index);
+
+    let efeito="";
+
+    if(u.tipo==="clique"){
+      efeito="+"+formatarNumero(u.valor)+" por clique";
+    }else{
+      efeito="+"+formatarNumero(u.valor)+" PT/s";
+    }
+
+    item.innerHTML=`
+      <b>${index+1}. ${u.nome}</b><br>
+      <small>${efeito}</small><br>
+      <span class="preco">
+        💰 ${formatarNumero(u.preco)} PT
+      </span>
+      <button ${comprado?"disabled":""}>
+        ${comprado?"COMPRADO ✅":"COMPRAR"}
+      </button>
+    `;
+
+    const botao=item.querySelector("button");
+
+    botao.onclick=()=>{
+
+      if(pontos<u.preco)return;
+
+      pontos-=u.preco;
+
+      if(u.tipo==="clique"){
+        pontosPorClique+=u.valor;
+      }
+
+      if(u.tipo==="auto"){
+        automatico+=u.valor;
+      }
+
+      comprados.push(index);
+
+      atualizar();
+
+    };
+
+    div.appendChild(item);
+
+  });
+}
+
+
+/* =========================
+   PETS NORMAIS
+========================= */
+
+function criarPets(){
+
+  const div=document.getElementById("pets");
+
+  div.innerHTML="";
+
+  pets.forEach((p,index)=>{
+
+    const item=document.createElement("div");
+
+    item.className="item pet";
+
+    const comprado=petsComprados.includes(index);
+
+    item.innerHTML=`
+      <b>${p.nome}</b><br>
+      <small>
+        Multiplica os ganhos por
+        ${formatarNumero(p.multiplicador)}
+      </small><br>
+      <span class="preco">
+        💰 ${formatarNumero(p.preco)} PT
+      </span>
+
+      <button ${comprado?"disabled":""}>
+        ${comprado?"ADQUIRIDO 😎":"COMPRAR PET"}
+      </button>
+    `;
+
+    const botao=item.querySelector("button");
+
+    botao.onclick=()=>{
+
+      if(pontos<p.preco)return;
+
+      pontos-=p.preco;
+
+      multiplicadorPets*=p.multiplicador;
+
+      petsComprados.push(index);
+
+      atualizar();
+
+    };
+
+    div.appendChild(item);
+
+  });
+}
+
+
+/* =========================
+   MOSTRAR PETS
+========================= */
+
+function mostrarPets(){
+
+  const div=document.getElementById("petsAtivos");
+
+  div.innerHTML="";
+
+  petsComprados.forEach(index=>{
+
+    div.innerHTML+=pets[index].nome.split(" ")[0];
+
+  });
+
+  petsLoja.forEach(pet=>{
+    div.innerHTML+=pet.emoji;
+  });
+}
+
+
+/* =========================
+   COMPRAR GEMAS
+========================= */
+
+function comprarGemas(quantidade,preco){
+
+  if(pontos<preco){
+
+    mensagem("❌ Você não tem pontos suficientes!");
+
+    return;
+  }
+
+  pontos-=preco;
+
+  gemas+=quantidade;
+
+  mensagem(
+    "💎 Você recebeu "+quantidade+" gema"+
+    (quantidade>1?"s!":"!")
+  );
+
+  atualizarLoja();
+  atualizar();
+
+}
+
+
+/* =========================
+   PET ALEATÓRIO
+========================= */
+
+function comprarPetAleatorio(){
+
+  if(gemas<1){
+
+    mensagem("❌ Você precisa de 1 💎!");
+
+    return;
+  }
+
+  gemas--;
+
+  let totalPeso=0;
+
+  petsAleatorios.forEach(p=>{
+    totalPeso+=p.peso;
+  });
+
+  let sorteio=Math.random()*totalPeso;
+
+  let escolhido=null;
+
+  for(const p of petsAleatorios){
+
+    sorteio-=p.peso;
+
+    if(sorteio<=0){
+
+      escolhido=p;
+      break;
+
+    }
+
+  }
+
+  petsLoja.push(escolhido);
+
+  multiplicadorPets*=escolhido.multiplicador;
+
+  mensagem(
+    "🎉 Você conseguiu "+escolhido.emoji+
+    " "+escolhido.nome+
+    "! ×"+escolhido.multiplicador
+  );
+
+  atualizarLoja();
+  atualizar();
+
+}
+
+
+/* =========================
+   PET RADIOATIVO
+========================= */
+
+document.getElementById("comprarRadioativo").onclick=function(){
+
+  if(gemas<5){
+
+    mensagem("❌ Você precisa de 5 💎!");
+
+    return;
+  }
+
+  if(petsLoja.some(p=>p.radioativo)){
+
+    mensagem("☢️ Você já possui o Pet Radioativo!");
+
+    return;
+  }
+
+  gemas-=5;
+
+  const radioativo={
+    emoji:"☢️",
+    nome:"Pet Radioativo",
+    multiplicador:100n,
+    radioativo:true
+  };
+
+  petsLoja.push(radioativo);
+
+  multiplicadorPets*=100n;
+
+  mensagem(
+    "☢️ PET RADIOATIVO ADQUIRIDO! ×100"
+  );
+
+  document.getElementById("comprarRadioativo").disabled=true;
+
+  atualizarLoja();
+  atualizar();
+
+};
+
+
+/* =========================
+   LOJA
+========================= */
+
+const botaoLoja=document.getElementById("botaoLoja");
+const loja=document.getElementById("loja");
+const fecharLoja=document.getElementById("fecharLoja");
+
+botaoLoja.onclick=()=>{
+
+  loja.classList.add("caixaAberta");
+
+  atualizarLoja();
+
+};
+
+fecharLoja.onclick=()=>{
+
+  loja.classList.remove("caixaAberta");
+
+};
+
+
+/* =========================
+   ABAS
+========================= */
+
+document.querySelectorAll(".abaLoja").forEach(botao=>{
+
+  botao.onclick=()=>{
+
+    document.querySelectorAll(".abaLoja")
+      .forEach(b=>b.classList.remove("ativa"));
+
+    document.querySelectorAll(".abaConteudo")
+      .forEach(c=>c.classList.remove("ativo"));
+
+    botao.classList.add("ativa");
+
+    document
+      .getElementById(botao.dataset.aba)
+      .classList.add("ativo");
+
+  };
+
+});
+
+/* =========================
+   ATUALIZAR LOJA
+========================= */
+
+function atualizarLoja(){
+
+  document.getElementById("quantidadeGemas")
+    .textContent = gemas;
+
+  const radioativoComprado =
+    petsLoja.some(p => p.radioativo);
+
+  const botao =
+    document.getElementById("comprarRadioativo");
+
+  if(radioativoComprado){
+
+    botao.disabled = true;
+    botao.textContent = "ADQUIRIDO ☢️";
+
+  }else{
+
+    botao.disabled = false;
+    botao.textContent = "COMPRAR ☢️";
+
+  }
+
+}
+
+
+/* =========================
+   MENSAGEM
+========================= */
+
+function mensagem(texto){
+
+  document.getElementById("mensagem")
+    .textContent = texto;
+
+  setTimeout(()=>{
+
+    document.getElementById("mensagem")
+      .textContent = "";
+
+  },2500);
+
+}
+
+
+/* =========================
+   ATUALIZAR
+========================= */
+
+function atualizar(){
+
+  document.getElementById("pontos").textContent =
+    formatarNumero(pontos) + " PT";
+
+  let ganhoClique =
+    pontosPorClique *
+    multiplicador *
+    multiplicadorPets;
+
+  document.getElementById("porClique").textContent =
+    "+" + formatarNumero(ganhoClique) +
+    " PT por clique";
+
+  mostrarPets();
+
+  criarUpgrades();
+  criarPets();
+
+  atualizarLoja();
+
+}
+
+
+/* =========================
+   AUTOMÁTICO
+========================= */
+
+setInterval(()=>{
+
+  if(automatico <= 0n) return;
+
+  let ganho =
+    automatico *
+    multiplicador *
+    multiplicadorPets;
+
+  pontos += ganho;
+
+  atualizar();
+
+},1000);
+
+
+/* =========================
+   REINICIAR
+========================= */
+
+document.getElementById("reiniciar").onclick = function(){
+
+  const confirmar = confirm(
+    "⚠️ Tem certeza que quer reiniciar o jogo?\n\n" +
+    "Todo o seu progresso será perdido."
+  );
+
+  if(!confirmar) return;
+
+  pontos = 0n;
+  pontosPorClique = 1n;
+  automatico = 0n;
+  multiplicador = 1n;
+  multiplicadorPets = 1n;
+
+  gemas = 0;
+
+  comprados = [];
+  petsComprados = [];
+  petsLoja = [];
+
+  document.getElementById("mensagem")
+    .textContent = "🔄 Jogo reiniciado!";
+
+  atualizar();
+
+};
+
+
+/* =========================
+   INICIAR
+========================= */
+
+atualizar();
+
+</script>
+
+<!-- ============================= -->
+<!-- 🌐 PAINEL ADM -->
+<!-- ============================= -->
+
+<button id="botaoADM">🌐</button>
+
+<div id="painelADM">
+
+  <div class="cabecalhoADM">
+    <span>👑 PAINEL DE ADMIN</span>
+    <button onclick="fecharADM()">✖</button>
+  </div>
+
+  <!-- ============================= -->
+  <!-- 📢 MENSAGENS -->
+  <!-- ============================= -->
+
+  <div class="secaoADM">
+    <h3>📢 MENSAGENS</h3>
+
+    <div class="botoesModo">
+      <button id="btnGlobal" onclick="modoMensagem('global')">
+        🌎 GLOBAL
+      </button>
+
+      <button id="btnPrivado" onclick="modoMensagem('privado')">
+        🔒 PRIVADO
+      </button>
+    </div>
+
+    <select
+      id="destinatarioADM"
+      style="display:none;"
+    >
+      <option value="">👥 Selecione um amigo</option>
+    </select>
+
+    <textarea
+      id="mensagemADM"
+      placeholder="Digite sua mensagem..."
+    ></textarea>
+
+    <button
+      class="botaoADMGrande"
+      onclick="enviarMensagemADM()"
+    >
+      📢 ENVIAR
+    </button>
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- 🎁 PRESENTES -->
+  <!-- ============================= -->
+
+  <div class="secaoADM">
+
+    <h3>🎁 PRESENTEAR JOGADOR</h3>
+
+    <select id="presenteJogador">
+      <option value="">👥 Selecione um amigo</option>
+    </select>
+
+    <select id="tipoPresente">
+
+      <option value="radioativo">
+        ☢️ Pet Radioativo
+      </option>
+
+      <option value="gemas">
+        💎 Gemas
+      </option>
+
+      <option value="pontos">
+        💰 Pontos
+      </option>
+
+    </select>
+
+    <button
+      class="botaoADMGrande"
+      onclick="enviarPresente()"
+    >
+      🎁 ENVIAR PRESENTE
+    </button>
+
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- 🎉 EVENTOS -->
+  <!-- ============================= -->
+
+  <div class="secaoADM">
+
+    <h3>🎉 EVENTOS</h3>
+
+    <p class="textoEvento">
+      Até 6 eventos podem ficar ativos ao mesmo tempo.
+    </p>
+
+    <div class="gradeEventos">
+
+      <button onclick="ativarEvento('☢️',4)">☢️</button>
+      <button onclick="ativarEvento('🔥',2)">🔥</button>
+      <button onclick="ativarEvento('⚡',2)">⚡</button>
+      <button onclick="ativarEvento('💨',2)">💨</button>
+      <button onclick="ativarEvento('💤',2)">💤</button>
+
+      <button onclick="ativarEvento('🎉',2)">🎉</button>
+      <button onclick="ativarEvento('💘',2)">💘</button>
+      <button onclick="ativarEvento('🌹',2)">🌹</button>
+      <button onclick="ativarEvento('🌋',2)">🌋</button>
+      <button onclick="ativarEvento('🍁',2)">🍁</button>
+
+      <button onclick="ativarEvento('🍄',2)">🍄</button>
+      <button onclick="ativarEvento('🌀',2)">🌀</button>
+      <button onclick="ativarEvento('🌪️',2)">🌪️</button>
+      <button onclick="ativarEvento('🌩️',2)">🌩️</button>
+
+    </div>
+
+    <div class="eventoAtivoADM">
+
+      <b>
+        Eventos ativos:
+        <span id="contadorEventosADM">0</span>/6
+      </b>
+
+      <div id="listaEventosADM">
+        Nenhum
+      </div>
+
+      <div class="linhaResultado">
+        Multiplicador:
+        <b id="multiplicadorEventosADM">1x</b>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- 🍀 SORTE -->
+  <!-- ============================= -->
+
+  <div class="secaoADM">
+
+    <h3>🍀 EVENTOS DE SORTE</h3>
+
+    <div class="gradeEventos">
+
+      <button onclick="ativarEventoSorte('☘️',4)">
+        ☘️
+      </button>
+
+      <button onclick="ativarEventoSorte('🍀',8)">
+        🍀
+      </button>
+
+    </div>
+
+    <div class="eventoAtivoADM">
+
+      <div id="listaSorteADM">
+        Nenhum
+      </div>
+
+      <div class="linhaResultado">
+        Bônus total:
+        <b id="bonusSorteADM">0%</b>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- 👑 DAR ADM -->
+  <!-- ============================= -->
+
+  <div class="secaoADM">
+
+    <h3>👑 ADMINISTRADORES</h3>
+
+    <select id="novoADM">
+      <option value="">👥 Selecione um amigo</option>
+    </select>
+
+    <button
+      class="botaoADMGrande"
+      onclick="darPainelADM()"
+    >
+      👑 DAR PAINEL DE ADM
+    </button>
+
+  </div>
+
+</div>
+
+
+<style>
+
+#botaoADM{
+  position:fixed;
+  width:55px;
+  height:55px;
+  right:15px;
+  top:15px;
+
+  border:none;
+  border-radius:50%;
+
+  background:#222;
+  color:white;
+
+  font-size:28px;
+
+  z-index:99999;
+
+  box-shadow:0 4px 15px #000;
+
+  touch-action:none;
+  cursor:grab;
+}
+
+#botaoADM:active{
+  cursor:grabbing;
+}
+
+
+#painelADM{
+
+  display:none;
+
+  position:fixed;
+
+  left:50%;
+  top:50%;
+
+  transform:translate(-50%,-50%);
+
+  width:92%;
+  max-width:430px;
+
+  max-height:90vh;
+
+  overflow-y:auto;
+
+  background:#151515;
+  color:white;
+
+  border:2px solid #444;
+  border-radius:18px;
+
+  padding:15px;
+
+  z-index:100000;
+
+  box-shadow:0 0 40px #000;
+}
+
+
+.cabecalhoADM{
+
+  display:flex;
+
+  justify-content:space-between;
+  align-items:center;
+
+  font-size:20px;
+  font-weight:bold;
+
+  margin-bottom:15px;
+}
+
+
+.cabecalhoADM button{
+
+  border:none;
+
+  background:#333;
+  color:white;
+
+  border-radius:8px;
+
+  padding:7px 10px;
+
+  font-size:16px;
+}
+
+
+.secaoADM{
+
+  background:#202020;
+
+  border-radius:14px;
+
+  padding:12px;
+
+  margin-bottom:12px;
+}
+
+
+.secaoADM h3{
+
+  margin-top:0;
+
+  font-size:17px;
+}
+
+
+.botoesModo{
+
+  display:flex;
+
+  gap:8px;
+
+  margin-bottom:10px;
+}
+
+
+.botoesModo button{
+
+  flex:1;
+
+  padding:10px;
+
+  border:none;
+
+  border-radius:10px;
+
+  background:#333;
+
+  color:white;
+
+  font-weight:bold;
+}
+
+
+#mensagemADM,
+#destinatarioADM,
+#presenteJogador,
+#novoADM,
+#tipoPresente{
+
+  width:100%;
+
+  margin-top:8px;
+
+  padding:10px;
+
+  border:none;
+
+  border-radius:9px;
+
+  background:#101010;
+
+  color:white;
+}
+
+
+#mensagemADM{
+
+  min-height:80px;
+
+  resize:none;
+}
+
+
+.botaoADMGrande{
+
+  width:100%;
+
+  margin-top:10px;
+
+  padding:11px;
+
+  border:none;
+
+  border-radius:10px;
+
+  background:#333;
+
+  color:white;
+
+  font-weight:bold;
+}
+
+
+.gradeEventos{
+
+  display:grid;
+
+  grid-template-columns:repeat(5,1fr);
+
+  gap:7px;
+}
+
+
+.gradeEventos button{
+
+  height:48px;
+
+  border:none;
+
+  border-radius:10px;
+
+  background:#303030;
+
+  color:white;
+
+  font-size:24px;
+}
+
+
+.eventoAtivoADM{
+
+  margin-top:12px;
+
+  padding:10px;
+
+  background:#101010;
+
+  border-radius:10px;
+
+  text-align:center;
+
+  line-height:1.7;
+}
+
+
+.textoEvento{
+
+  opacity:.8;
+
+  font-size:13px;
+}
+
+
+.linhaEvento{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  background:#202020;
+
+  padding:7px 9px;
+
+  margin-top:6px;
+
+  border-radius:8px;
+}
+
+
+.linhaResultado{
+
+  margin-top:8px;
+
+  padding-top:8px;
+
+  border-top:1px solid #333;
+}
+
+</style>
+
+
+<script>
+
+/* ============================= */
+/* 🌐 BOTÃO ADM */
+/* ============================= */
+
+const botaoADM =
+  document.getElementById("botaoADM");
+
+const painelADM =
+  document.getElementById("painelADM");
+
+
+/* ============================= */
+/* 👑 ADM PRINCIPAL + ACESSO */
+/* ============================= */
+
+function nomeADMNormalizado(nome){
+
+  return (nome || "")
+    .trim()
+    .toLowerCase();
+
+}
+
+function pegarADMsConcedidos(){
+
+  try{
+    return JSON.parse(
+      localStorage.getItem("admsConcedidos") || "[]"
+    );
+  }catch(e){
+    return [];
+  }
+}
+
+function ehADMAtual(){
+
+  const codigo =
+    localStorage.getItem("codigoPerfil") || "";
+
+  const principal =
+    localStorage.getItem("admPrincipalCodigo") || "";
+
+  if(codigo && principal && codigo === principal){
+    return true;
+  }
+
+  return pegarADMsConcedidos().some(function(adm){
+    return adm.codigo === codigo;
+  });
+}
+
+function atualizarAcessoADM(){
+
+  const acesso = ehADMAtual();
+
+  if(botaoADM){
+    botaoADM.style.display = acesso ? "block" : "none";
+  }
+
+  if(!acesso && painelADM){
+    painelADM.style.display = "none";
+  }
+
+  if(acesso){
+    atualizarSeletoresADM();
+  }
+
+}
+
+function atualizarSeletoresADM(){
+
+  const amigos =
+    (typeof pegarAmigos === "function") ? pegarAmigos() : [];
+
+  const ids = [
+    "destinatarioADM",
+    "presenteJogador",
+    "novoADM"
+  ];
+
+  ids.forEach(function(id){
+
+    const select = document.getElementById(id);
+
+    if(!select) return;
+
+    const valorAtual = select.value;
+
+    select.innerHTML =
+      '<option value="">👥 Selecione um amigo</option>';
+
+    amigos.forEach(function(amigo){
+
+      const option = document.createElement("option");
+
+      option.value = String(amigo.codigo || "");
+
+      option.textContent =
+        (amigo.emoji || "👤") + " " +
+        (amigo.nome || "Amigo") +
+        " (#" + (amigo.codigo || "") + ")";
+
+      select.appendChild(option);
+
+    });
+
+    if(valorAtual && Array.from(select.options).some(function(o){
+      return o.value === valorAtual;
+    })){
+      select.value = valorAtual;
+    }
+
+  });
+
+}
+
+
+let arrastandoADM = false;
+let arrastouADM = false;
+
+let inicioX = 0;
+let inicioY = 0;
+
+let posX = 0;
+let posY = 0;
+
+
+botaoADM.addEventListener(
+  "click",
+  function(){
+
+    if(!ehADMAtual()){
+      return;
+    }
+
+    if(arrastouADM){
+      return;
+    }
+
+    atualizarSeletoresADM();
+
+    painelADM.style.display = "block";
+
+  }
+);
+
+
+function fecharADM(){
+
+  painelADM.style.display = "none";
+
+}
+
+
+/* ============================= */
+/* 🖐️ ARRASTAR BOTÃO */
+/* ============================= */
+
+botaoADM.addEventListener(
+  "pointerdown",
+  function(e){
+
+    arrastandoADM = true;
+
+    arrastouADM = false;
+
+    inicioX = e.clientX - posX;
+    inicioY = e.clientY - posY;
+
+    botaoADM.setPointerCapture(e.pointerId);
+
+  }
+);
+
+
+botaoADM.addEventListener(
+  "pointermove",
+  function(e){
+
+    if(!arrastandoADM){
+      return;
+    }
+
+    let novoX =
+      e.clientX - inicioX;
+
+    let novoY =
+      e.clientY - inicioY;
+
+
+    if(
+      Math.abs(novoX - posX) > 5 ||
+      Math.abs(novoY - posY) > 5
+    ){
+
+      arrastouADM = true;
+
+    }
+
+
+    posX = novoX;
+    posY = novoY;
+
+
+    botaoADM.style.transform =
+      "translate(" +
+      posX +
+      "px," +
+      posY +
+      "px)";
+
+  }
+);
+
+
+botaoADM.addEventListener(
+  "pointerup",
+  function(){
+
+    arrastandoADM = false;
+
+    localStorage.setItem(
+      "posADM",
+      JSON.stringify({
+        x:posX,
+        y:posY
+      })
+    );
+
+  }
+);
+
+
+/* RECUPERAR POSIÇÃO */
+
+try{
+
+  const salvo =
+    JSON.parse(
+      localStorage.getItem("posADM")
+    );
+
+  if(salvo){
+
+    posX = salvo.x;
+    posY = salvo.y;
+
+    botaoADM.style.transform =
+      "translate(" +
+      posX +
+      "px," +
+      posY +
+      "px)";
+
+  }
+
+}catch(e){}
+
+
+/* ============================= */
+/* 📢 MENSAGENS */
+/* ============================= */
+
+let modoAtual = "global";
+
+
+function modoMensagem(modo){
+
+  modoAtual = modo;
+
+  const campo =
+    document.getElementById(
+      "destinatarioADM"
+    );
+
+
+  if(modo === "privado"){
+
+    atualizarSeletoresADM();
+
+    campo.style.display = "block";
+
+    document.getElementById(
+      "btnPrivado"
+    ).style.background = "#555";
+
+    document.getElementById(
+      "btnGlobal"
+    ).style.background = "#333";
+
+  }else{
+
+    campo.style.display = "none";
+
+    document.getElementById(
+      "btnGlobal"
+    ).style.background = "#555";
+
+    document.getElementById(
+      "btnPrivado"
+    ).style.background = "#333";
+
+  }
+
+}
+
+
+function enviarMensagemADM(){
+
+  if(!ehADMAtual()){
+    alert("❌ Você não é ADM.");
+    return;
+  }
+
+  const mensagem =
+    document.getElementById("mensagemADM").value.trim();
+
+  if(!mensagem){
+    alert("Digite uma mensagem!");
+    return;
+  }
+
+  if(modoAtual === "global"){
+
+    localStorage.setItem(
+      "mensagemGlobalADM",
+      JSON.stringify({
+        texto:mensagem,
+        data:Date.now()
+      })
+    );
+
+    mostrarMensagemADM(mensagem);
+
+    alert("📢 Mensagem global enviada!");
+
+  }else{
+
+    const codigo =
+      document.getElementById("destinatarioADM").value;
+
+    const amigo = pegarAmigos().find(function(a){
+      return String(a.codigo) === String(codigo);
+    });
+
+    if(!amigo){
+      alert("👥 Escolha um amigo primeiro!");
+      return;
+    }
+
+    const chave = "mensagensADM_" + amigo.codigo;
+    let mensagens = [];
+
+    try{
+      mensagens = JSON.parse(localStorage.getItem(chave) || "[]");
+    }catch(e){ mensagens = []; }
+
+    mensagens.push({
+      texto:mensagem,
+      de:"ADM",
+      data:Date.now()
+    });
+
+    localStorage.setItem(chave, JSON.stringify(mensagens));
+
+    alert("🔒 Mensagem enviada para " + amigo.nome + "!");
+
+  }
+
+  document.getElementById("mensagemADM").value = "";
+
+}
+
+
+
+/* ============================= */
+/* 🎁 PRESENTES */
+/* ============================= */
+
+function enviarPresente(){
+
+  if(!ehADMAtual()){
+    alert("❌ Você não é ADM.");
+    return;
+  }
+
+  const codigo =
+    document.getElementById("presenteJogador").value;
+
+  const tipo =
+    document.getElementById("tipoPresente").value;
+
+  const amigo = pegarAmigos().find(function(a){
+    return String(a.codigo) === String(codigo);
+  });
+
+  if(!amigo){
+    alert("👥 Escolha um amigo primeiro!");
+    return;
+  }
+
+  const chave = "presentesADM_" + amigo.codigo;
+  let presentes = [];
+
+  try{
+    presentes = JSON.parse(localStorage.getItem(chave) || "[]");
+  }catch(e){ presentes = []; }
+
+  presentes.push({
+    tipo:tipo,
+    de:"ADM",
+    data:Date.now()
+  });
+
+  localStorage.setItem(chave, JSON.stringify(presentes));
+
+  alert("🎁 Presente enviado para " + amigo.nome + "!");
+
+}
+
+
+
+/* ============================= */
+/* 🎉 SISTEMA DE EVENTOS */
+/* ============================= */
+
+const MAX_EVENTOS = 6;
+
+let eventosAtivos = [];
+
+let proximoIdEvento = 1;
+
+
+/* ATIVAR EVENTO NORMAL */
+
+function ativarEvento(
+  emoji,
+  multiplicador
+){
+
+  if(
+    eventosAtivos.length >= MAX_EVENTOS
+  ){
+
+    alert(
+      "⚠️ Já existem 6 eventos ativos!"
+    );
+
+    return;
+
+  }
+
+
+  eventosAtivos.push({
+
+    id:proximoIdEvento++,
+
+    tipo:"normal",
+
+    emoji:emoji,
+
+    multiplicador:multiplicador,
+
+    tempo:60
+
+  });
+
+
+  atualizarEventosADM();
+
+  atualizarFundoRadioativo();
+
+}
+
+
+/* ============================= */
+/* 🍀 EVENTOS DE SORTE */
+/* ============================= */
+
+function ativarEventoSorte(
+  emoji,
+  bonus
+){
+
+  if(
+    eventosAtivos.length >= MAX_EVENTOS
+  ){
+
+    alert(
+      "⚠️ Já existem 6 eventos ativos!"
+    );
+
+    return;
+
+  }
+
+
+  eventosAtivos.push({
+
+    id:proximoIdEvento++,
+
+    tipo:"sorte",
+
+    emoji:emoji,
+
+    bonus:bonus,
+
+    tempo:60
+
+  });
+
+
+  atualizarEventosADM();
+
+}
+
+
+/* ============================= */
+/* 🔄 ATUALIZAR EVENTOS */
+/* ============================= */
+
+function atualizarEventosADM(){
+
+  const normais =
+    eventosAtivos.filter(
+      e => e.tipo === "normal"
+    );
+
+
+  const sortes =
+    eventosAtivos.filter(
+      e => e.tipo === "sorte"
+    );
+
+
+  document.getElementById(
+    "contadorEventosADM"
+  ).textContent =
+    eventosAtivos.length;
+
+
+  /* EVENTOS NORMAIS */
+
+  if(normais.length === 0){
+
+    document.getElementById(
+      "listaEventosADM"
+    ).innerHTML =
+      "Nenhum";
+
+  }else{
+
+    document.getElementById(
+      "listaEventosADM"
+    ).innerHTML =
+
+      normais.map(
+        e =>
+
+        `<div class="linhaEvento">
+
+          <span>
+            ${e.emoji}
+            ${e.multiplicador}x
+          </span>
+
+          <b>
+            ${e.tempo}s
+          </b>
+
+        </div>`
+
+      ).join("");
+
+  }
+
+
+  /* MULTIPLICADOR */
+
+  let multiplicadorTotal = 1;
+
+
+  normais.forEach(
+    e => {
+
+      multiplicadorTotal *=
+        e.multiplicador;
+
+    }
+  );
+
+
+  document.getElementById(
+    "multiplicadorEventosADM"
+  ).textContent =
+    multiplicadorTotal + "x";
+
+
+  /* EVENTOS DE SORTE */
+
+  if(sortes.length === 0){
+
+    document.getElementById(
+      "listaSorteADM"
+    ).innerHTML =
+      "Nenhum";
+
+  }else{
+
+    document.getElementById(
+      "listaSorteADM"
+    ).innerHTML =
+
+      sortes.map(
+        e =>
+
+        `<div class="linhaEvento">
+
+          <span>
+            ${e.emoji}
+            +${e.bonus}%
+          </span>
+
+          <b>
+            ${e.tempo}s
+          </b>
+
+        </div>`
+
+      ).join("");
+
+  }
+
+
+  /* BÔNUS TOTAL */
+
+  let bonusTotal = 0;
+
+
+  sortes.forEach(
+    e => {
+
+      bonusTotal += e.bonus;
+
+    }
+  );
+
+
+  document.getElementById(
+    "bonusSorteADM"
+  ).textContent =
+    "+" + bonusTotal + "%";
+
+
+  atualizarFundoRadioativo();
+
+}
+
+
+/* ============================= */
+/* ⏱️ CONTADOR DOS EVENTOS */
+/* ============================= */
+
+setInterval(
+
+  function(){
+
+    if(eventosAtivos.length === 0){
+
+      return;
+
+    }
+
+
+    eventosAtivos.forEach(
+      e => {
+
+        e.tempo--;
+
+      }
+    );
+
+
+    eventosAtivos =
+      eventosAtivos.filter(
+        e => e.tempo > 0
+      );
+
+
+    atualizarEventosADM();
+
+  },
+
+  1000
+
+);
+
+
+/* ============================= */
+/* ☢️ FUNDO RADIOATIVO */
+/* ============================= */
+
+function atualizarFundoRadioativo(){
+
+  const radioativo =
+    eventosAtivos.some(
+      e =>
+        e.tipo === "normal" &&
+        e.emoji === "☢️"
+    );
+
+
+  if(radioativo){
+
+    document.body.classList.add(
+      "eventoRadioativo"
+    );
+
+  }else{
+
+    document.body.classList.remove(
+      "eventoRadioativo"
+    );
+
+  }
+
+}
+
+
+/* ============================= */
+/* ⚡ MULTIPLICADOR DOS EVENTOS */
+/* ============================= */
+
+function obterMultiplicadorEventos(){
+
+  let total = 1;
+
+
+  eventosAtivos.forEach(
+    e => {
+
+      if(e.tipo === "normal"){
+
+        total *= e.multiplicador;
+
+      }
+
+    }
+  );
+
+
+  return total;
+
+}
+
+
+/* ============================= */
+/* 🍀 BÔNUS DE SORTE */
+/* ============================= */
+
+function obterBonusSorte(){
+
+  let total = 0;
+
+
+  eventosAtivos.forEach(
+    e => {
+
+      if(e.tipo === "sorte"){
+
+        total += e.bonus;
+
+      }
+
+    }
+  );
+
+
+  return total;
+
+}
+
+
+/* ============================= */
+/* 👑 DAR ADM */
+/* ============================= */
+
+function darPainelADM(){
+
+  if(!ehADMAtual()){
+    alert("❌ Você não é ADM.");
+    return;
+  }
+
+  const codigo =
+    document.getElementById("novoADM").value;
+
+  const amigo = pegarAmigos().find(function(a){
+    return String(a.codigo) === String(codigo);
+  });
+
+  if(!amigo){
+    alert("👥 Só é possível dar ADM para um amigo.");
+    return;
+  }
+
+  if(String(amigo.codigo) === String(localStorage.getItem("admPrincipalCodigo"))){
+    alert("👑 Essa pessoa já é o ADM principal.");
+    return;
+  }
+
+  const adms = pegarADMsConcedidos();
+
+  if(adms.some(function(adm){
+    return String(adm.codigo) === String(amigo.codigo);
+  })){
+    alert("👑 " + amigo.nome + " já é ADM.");
+    return;
+  }
+
+  adms.push({
+    codigo:String(amigo.codigo),
+    nome:amigo.nome,
+    emoji:amigo.emoji || "👤",
+    concedidoPor:localStorage.getItem("codigoPerfil") || ""
+  });
+
+  localStorage.setItem(
+    "admsConcedidos",
+    JSON.stringify(adms)
+  );
+
+  alert("👑 " + amigo.nome + " agora tem painel de ADM!");
+
+}
+
+
+
+/* ============================= */
+/* ☢️ ESTILO RADIOATIVO */
+/* ============================= */
+
+const estiloRadioativo =
+  document.createElement("style");
+
+
+estiloRadioativo.textContent = `
+
+body.eventoRadioativo{
+
+  background-color:#082b0b !important;
+
+  background-image:
+
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(70,255,70,.18) 0 2px,
+      transparent 3px
+    ),
+
+    radial-gradient(
+      circle at 70% 60%,
+      rgba(120,255,80,.15) 0 2px,
+      transparent 3px
+    );
+
+  background-size:
+    45px 45px,
+    70px 70px;
+
+}
+
+`;
+
+
+document.head.appendChild(
+  estiloRadioativo
+);
+
+
+/* ============================= */
+/* 🚀 INICIAR */
+/* ============================= */
+
+modoMensagem("global");
+
+atualizarEventosADM();
+
+</script>
+<script>
+/* 🛟 RECUPERAR E PROTEGER O BOTÃO ADM */
+
+const admSeguro = document.getElementById("botaoADM");
+
+if(admSeguro){
+
+  /* Apaga a posição antiga que deixou o botão perdido */
+  localStorage.removeItem("posADM");
+
+  /* Coloca o botão de volta no canto */
+  admSeguro.style.transform = "translate(0px, 0px)";
+
+  /* Impede que ele fique fora da tela */
+  admSeguro.addEventListener("pointermove", function(){
+
+    setTimeout(function(){
+
+      const caixa = admSeguro.getBoundingClientRect();
+
+      let x = 0;
+      let y = 0;
+
+      if(caixa.right < 20 || caixa.left > window.innerWidth - 20){
+        x = 0;
+      }
+
+      if(caixa.bottom < 20 || caixa.top > window.innerHeight - 20){
+        y = 0;
+      }
+
+      if(
+        caixa.right < 20 ||
+        caixa.left > window.innerWidth - 20 ||
+        caixa.bottom < 20 ||
+        caixa.top > window.innerHeight - 20
+      ){
+
+        admSeguro.style.transform =
+          "translate(0px, 0px)";
+
+      }
+
+    }, 0);
+
+  });
+
+}
+  
+</script>
+  <!-- 📢 NOTIFICAÇÃO DO ADM -->
+
+<div id="notificacaoADM">
+  <div id="tituloNotificacaoADM">📢 Mensagem do ADM</div>
+  <div id="textoNotificacaoADM"></div>
+</div>
+
+<style>
+
+#notificacaoADM{
+  position:fixed;
+
+  top:85px;
+  left:50%;
+
+  transform:translateX(-50%) translateY(-20px);
+
+  width:90%;
+  max-width:420px;
+
+  background:#222;
+
+  color:white;
+
+  padding:14px 16px;
+
+  border-radius:14px;
+
+  border:2px solid #444;
+
+  box-shadow:0 5px 25px rgba(0,0,0,.6);
+
+  text-align:center;
+
+  z-index:999999;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transition:
+    opacity .25s,
+    transform .25s;
+}
+
+#notificacaoADM.mostrar{
+
+  opacity:1;
+
+  transform:
+    translateX(-50%)
+    translateY(0);
+
+}
+
+#tituloNotificacaoADM{
+
+  font-size:17px;
+
+  font-weight:bold;
+
+  margin-bottom:5px;
+
+}
+
+#textoNotificacaoADM{
+
+  font-size:15px;
+
+  line-height:1.4;
+
+}
+
+</style>
+
+<script>
+
+let timerNotificacaoADM = null;
+
+function mostrarMensagemADM(mensagem){
+
+  const caixa =
+    document.getElementById(
+      "notificacaoADM"
+    );
+
+  const texto =
+    document.getElementById(
+      "textoNotificacaoADM"
+    );
+
+  texto.textContent = mensagem;
+
+  caixa.classList.add("mostrar");
+
+  clearTimeout(timerNotificacaoADM);
+
+  timerNotificacaoADM = setTimeout(
+    function(){
+
+      caixa.classList.remove("mostrar");
+
+    },
+    5000
+  );
+
+}
+
+</script>
+  <script>
+
+window.enviarMensagemADM = function(){
+  enviarMensagemADM();
+};
+
+  </script>
+  <!-- 🎉 EVENTOS ATIVOS NA TELA DO JOGADOR -->
+
+<div id="eventosJogador">
+  <div id="listaEventosJogador"></div>
+</div>
+
+<style>
+
+#eventosJogador{
+
+  position:fixed;
+
+  top:75px;
+  left:10px;
+
+  z-index:99998;
+
+  display:flex;
+
+  flex-direction:column;
+
+  gap:6px;
+
+  pointer-events:none;
+
+}
+
+.eventoJogador{
+
+  background:rgba(20,20,20,.92);
+
+  color:white;
+
+  border:1px solid #555;
+
+  border-radius:10px;
+
+  padding:6px 10px;
+
+  min-width:70px;
+
+  text-align:left;
+
+  font-size:16px;
+
+  font-weight:bold;
+
+  box-shadow:0 3px 10px rgba(0,0,0,.5);
+
+}
+
+</style>
+
+<script>
+
+/* 🎉 MOSTRAR EVENTOS PARA O JOGADOR */
+
+function atualizarEventosJogador(){
+
+  const lista =
+    document.getElementById(
+      "listaEventosJogador"
+    );
+
+  if(!lista){
+    return;
+  }
+
+  lista.innerHTML = "";
+
+  if(
+    typeof eventosAtivos === "undefined" ||
+    eventosAtivos.length === 0
+  ){
+
+    return;
+
+  }
+
+  eventosAtivos.forEach(function(evento){
+
+    const item =
+      document.createElement("div");
+
+    item.className =
+      "eventoJogador";
+
+    if(evento.tipo === "normal"){
+
+      item.textContent =
+        evento.emoji +
+        " " +
+        evento.tempo +
+        "s";
+
+    }else{
+
+      item.textContent =
+        evento.emoji +
+        " +" +
+        evento.bonus +
+        "% " +
+        evento.tempo +
+        "s";
+
+    }
+
+    lista.appendChild(item);
+
+  });
+
+}
+
+
+/* 🔄 ATUALIZAR A CADA SEGUNDO */
+
+setInterval(
+  atualizarEventosJogador,
+  1000
+);
+
+atualizarEventosJogador();
+
+</script>
+  <!-- =============================== -->
+<!-- 👤 PERFIL DO JOGADOR -->
+<!-- =============================== -->
+
+<div id="botaoPerfil">👤</div>
+
+<div id="painelPerfil">
+
+  <div id="perfilCaixa">
+
+    <button id="fecharPerfil">✖</button>
+
+    <h2>Edite seu perfil! 👤</h2>
+
+    <label>Escolha seu perfil:</label>
+
+    <div id="emojisPerfil">
+
+      <button class="emojiEscolha">🤥</button>
+      <button class="emojiEscolha">😘</button>
+      <button class="emojiEscolha">😍</button>
+      <button class="emojiEscolha">🤩</button>
+      <button class="emojiEscolha">😚</button>
+      <button class="emojiEscolha">😙</button>
+
+      <button class="emojiEscolha">😀</button>
+      <button class="emojiEscolha">😃</button>
+      <button class="emojiEscolha">🥹</button>
+      <button class="emojiEscolha">🥳</button>
+      <button class="emojiEscolha">😂</button>
+      <button class="emojiEscolha">😵</button>
+
+      <button class="emojiEscolha">😩</button>
+      <button class="emojiEscolha">🤓</button>
+      <button class="emojiEscolha">🤑</button>
+      <button class="emojiEscolha">🤥</button>
+      <button class="emojiEscolha">😇</button>
+
+    </div>
+
+    <label>Nome:</label>
+
+    <input
+      type="text"
+      id="nomePerfil"
+      placeholder="Digite seu nome"
+      maxlength="20"
+    >
+
+    <label>
+      Sobrenome
+      <span>(opcional)</span>:
+    </label>
+
+    <input
+      type="text"
+      id="sobrenomePerfil"
+      placeholder="Digite seu sobrenome"
+      maxlength="20"
+    >
+
+    <label>Código único:</label>
+
+    <div id="codigoArea">
+
+      <span>#</span>
+
+      <input
+        type="text"
+        id="codigoPerfil"
+        placeholder="Seu código"
+        maxlength="8"
+      >
+
+    </div>
+
+    <button id="salvarPerfil">
+      💾 Salvar perfil
+    </button>
+
+    <p id="mensagemPerfil"></p>
+
+  </div>
+
+</div>
+
+
+<style>
+
+/* =============================== */
+/* 👤 BOTÃO DO PERFIL */
+/* =============================== */
+
+#botaoPerfil{
+
+  position:fixed;
+
+  right:15px;
+  top:120px;
+
+  width:52px;
+  height:52px;
+
+  background:#222;
+
+  border:2px solid #555;
+
+  border-radius:50%;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  font-size:27px;
+
+  z-index:99999;
+
+  cursor:pointer;
+
+  user-select:none;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.5);
+
+}
+
+
+#botaoPerfil:active{
+
+  transform:scale(0.95);
+
+}
+
+
+/* =============================== */
+/* 📋 PAINEL */
+/* =============================== */
+
+#painelPerfil{
+
+  display:none;
+
+  position:fixed;
+
+  inset:0;
+
+  background:rgba(0,0,0,0.75);
+
+  z-index:99998;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:20px;
+
+}
+
+
+/* =============================== */
+/* 📦 CAIXA */
+/* =============================== */
+
+#perfilCaixa{
+
+  position:relative;
+
+  width:100%;
+
+  max-width:360px;
+
+  max-height:90vh;
+
+  overflow-y:auto;
+
+  background:#181818;
+
+  border:2px solid #444;
+
+  border-radius:18px;
+
+  padding:25px;
+
+  color:white;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.7);
+
+  animation:abrirPerfil .2s ease;
+
+}
+
+
+@keyframes abrirPerfil{
+
+  from{
+
+    transform:scale(.8);
+
+    opacity:0;
+
+  }
+
+  to{
+
+    transform:scale(1);
+
+    opacity:1;
+
+  }
+
+}
+
+
+/* =============================== */
+/* ❌ FECHAR */
+/* =============================== */
+
+#fecharPerfil{
+
+  position:absolute;
+
+  right:12px;
+
+  top:12px;
+
+  width:32px;
+
+  height:32px;
+
+  border:none;
+
+  border-radius:50%;
+
+  background:#333;
+
+  color:white;
+
+  font-size:16px;
+
+  cursor:pointer;
+
+}
+
+
+/* =============================== */
+/* 📝 TÍTULO */
+/* =============================== */
+
+#perfilCaixa h2{
+
+  margin-top:5px;
+
+  margin-bottom:22px;
+
+  text-align:center;
+
+  font-size:22px;
+
+}
+
+
+/* =============================== */
+/* 🏷️ LABELS */
+/* =============================== */
+
+#perfilCaixa label{
+
+  display:block;
+
+  text-align:left;
+
+  margin-top:14px;
+
+  margin-bottom:6px;
+
+  font-weight:bold;
+
+}
+
+
+#perfilCaixa label span{
+
+  color:#999;
+
+  font-weight:normal;
+
+  font-size:13px;
+
+}
+
+
+/* =============================== */
+/* 😀 EMOJIS */
+/* =============================== */
+
+#emojisPerfil{
+
+  display:grid;
+
+  grid-template-columns:repeat(6,1fr);
+
+  gap:7px;
+
+  margin:10px 0 18px;
+
+}
+
+
+.emojiEscolha{
+
+  width:100%;
+
+  aspect-ratio:1;
+
+  border:2px solid transparent;
+
+  border-radius:10px;
+
+  background:#292929;
+
+  font-size:25px;
+
+  cursor:pointer;
+
+}
+
+
+.emojiEscolha:active{
+
+  transform:scale(.9);
+
+}
+
+
+.emojiEscolha.selecionado{
+
+  border:2px solid #2979ff;
+
+  background:#333;
+
+}
+
+
+/* =============================== */
+/* ✏️ INPUTS */
+/* =============================== */
+
+#perfilCaixa input{
+
+  width:100%;
+
+  padding:12px;
+
+  border:none;
+
+  outline:none;
+
+  border-radius:10px;
+
+  background:#292929;
+
+  color:white;
+
+  font-size:16px;
+
+}
+
+
+#perfilCaixa input:focus{
+
+  outline:2px solid #555;
+
+}
+
+
+/* =============================== */
+/* 🔢 CÓDIGO */
+/* =============================== */
+
+#codigoArea{
+
+  display:flex;
+
+  align-items:center;
+
+  background:#292929;
+
+  border-radius:10px;
+
+  overflow:hidden;
+
+}
+
+
+#codigoArea span{
+
+  padding-left:13px;
+
+  font-size:18px;
+
+  font-weight:bold;
+
+}
+
+
+#codigoArea input{
+
+  background:transparent;
+
+  border-radius:0;
+
+}
+
+
+/* =============================== */
+/* 💾 SALVAR */
+/* =============================== */
+
+#salvarPerfil{
+
+  width:100%;
+
+  margin-top:22px;
+
+  padding:13px;
+
+  border:none;
+
+  border-radius:10px;
+
+  background:#2962ff;
+
+  color:white;
+
+  font-size:16px;
+
+  font-weight:bold;
+
+  cursor:pointer;
+
+}
+
+
+#salvarPerfil:active{
+
+  transform:scale(.97);
+
+}
+
+
+/* =============================== */
+/* 💬 MENSAGEM */
+/* =============================== */
+
+#mensagemPerfil{
+
+  text-align:center;
+
+  margin-bottom:0;
+
+  font-size:14px;
+
+  color:#7CFF7C;
+
+}
+
+</style>
+
+
+<script>
+
+/* =============================== */
+/* 🔗 ELEMENTOS */
+/* =============================== */
+
+const botaoPerfil =
+  document.getElementById("botaoPerfil");
+
+const painelPerfil =
+  document.getElementById("painelPerfil");
+
+const fecharPerfil =
+  document.getElementById("fecharPerfil");
+
+const salvarPerfil =
+  document.getElementById("salvarPerfil");
+
+const nomePerfil =
+  document.getElementById("nomePerfil");
+
+const sobrenomePerfil =
+  document.getElementById("sobrenomePerfil");
+
+const codigoPerfil =
+  document.getElementById("codigoPerfil");
+
+const mensagemPerfil =
+  document.getElementById("mensagemPerfil");
+
+const botoesEmoji =
+  document.querySelectorAll(".emojiEscolha");
+
+
+/* =============================== */
+/* 😀 EMOJI */
+/* =============================== */
+
+let emojiSelecionado =
+  localStorage.getItem("emojiPerfil") || "😀";
+
+
+/* =============================== */
+/* 🔢 GERAR CÓDIGO */
+/* =============================== */
+
+function gerarCodigo(){
+
+  let codigo;
+
+  do{
+
+    codigo =
+      Math.floor(
+        10000000 +
+        Math.random() * 90000000
+      ).toString();
+
+  }
+
+  while(
+    codigo ===
+    localStorage.getItem("codigoPerfil")
+  );
+
+  return codigo;
+
+}
+
+
+/* =============================== */
+/* 📥 CARREGAR PERFIL */
+/* =============================== */
+
+function carregarPerfil(){
+
+  let codigo =
+    localStorage.getItem("codigoPerfil");
+
+
+  if(!codigo){
+
+    codigo = gerarCodigo();
+
+    localStorage.setItem(
+      "codigoPerfil",
+      codigo
+    );
+
+  }
+
+
+  nomePerfil.value =
+    localStorage.getItem("nomePerfil") || "";
+
+
+  sobrenomePerfil.value =
+    localStorage.getItem("sobrenomePerfil") || "";
+
+
+  codigoPerfil.value =
+    codigo;
+
+
+  emojiSelecionado =
+    localStorage.getItem("emojiPerfil") || "😀";
+
+
+  atualizarEmoji();
+
+}
+
+
+/* =============================== */
+/* 😀 ATUALIZAR EMOJI */
+/* =============================== */
+
+function atualizarEmoji(){
+
+  botoesEmoji.forEach(function(botao){
+
+    botao.classList.remove("selecionado");
+
+    if(
+      botao.textContent ===
+      emojiSelecionado
+    ){
+
+      botao.classList.add("selecionado");
+
+    }
+
+  });
+
+}
+
+
+/* =============================== */
+/* 😀 ESCOLHER EMOJI */
+/* =============================== */
+
+botoesEmoji.forEach(function(botao){
+
+  botao.addEventListener(
+    "click",
+    function(){
+
+      emojiSelecionado =
+        botao.textContent;
+
+      localStorage.setItem(
+        "emojiPerfil",
+        emojiSelecionado
+      );
+
+      atualizarEmoji();
+
+    }
+  );
+
+});
+
+
+/* =============================== */
+/* 👤 ABRIR PERFIL */
+/* =============================== */
+
+botaoPerfil.addEventListener(
+  "click",
+  function(){
+
+    carregarPerfil();
+
+    painelPerfil.style.display =
+      "flex";
+
+  }
+);
+
+
+/* =============================== */
+/* ❌ FECHAR PERFIL */
+/* =============================== */
+
+fecharPerfil.addEventListener(
+  "click",
+  function(){
+
+    painelPerfil.style.display =
+      "none";
+
+    mensagemPerfil.textContent =
+      "";
+
+  }
+);
+
+
+/* =============================== */
+/* 💾 SALVAR PERFIL */
+/* =============================== */
+
+salvarPerfil.addEventListener(
+  "click",
+  function(){
+
+    const nome =
+      nomePerfil.value.trim();
+
+    const sobrenome =
+      sobrenomePerfil.value.trim();
+
+    const codigo =
+      codigoPerfil.value
+        .replace("#","")
+        .trim();
+
+
+    if(!nome){
+
+      mensagemPerfil.style.color =
+        "#ff5555";
+
+      mensagemPerfil.textContent =
+        "❌ Digite seu nome!";
+
+      return;
+
+    }
+
+
+    if(!codigo){
+
+      mensagemPerfil.style.color =
+        "#ff5555";
+
+      mensagemPerfil.textContent =
+        "❌ Digite seu código!";
+
+      return;
+
+    }
+
+
+    if(!/^[0-9]+$/.test(codigo)){
+
+      mensagemPerfil.style.color =
+        "#ff5555";
+
+      mensagemPerfil.textContent =
+        "❌ O código deve ter apenas números!";
+
+      return;
+
+    }
+
+
+    /* ====================================== */
+    /* 👑 RESERVA DO NOME CALEBILSON */
+    /* ====================================== */
+
+    const nomeNormalizado =
+      nome.trim().toLowerCase();
+
+    const donoCalebilson =
+      localStorage.getItem("admPrincipalCodigo");
+
+    if(nomeNormalizado === "calebilson"){
+
+      if(donoCalebilson && donoCalebilson !== codigo){
+
+        mensagemPerfil.style.color = "#ff5555";
+        mensagemPerfil.textContent =
+          "❌ O nome calebilson já foi registrado por outra conta!";
+
+        return;
+
+      }
+
+      if(!donoCalebilson){
+        localStorage.setItem(
+          "admPrincipalCodigo",
+          codigo
+        );
+      }
+
+    }
+
+
+    localStorage.setItem(
+      "nomePerfil",
+      nome
+    );
+
+    localStorage.setItem(
+      "sobrenomePerfil",
+      sobrenome
+    );
+
+    localStorage.setItem(
+      "codigoPerfil",
+      codigo
+    );
+
+    localStorage.setItem(
+      "emojiPerfil",
+      emojiSelecionado
+    );
+
+
+    mensagemPerfil.style.color =
+      "#7CFF7C";
+
+    mensagemPerfil.textContent =
+      "✅ Perfil salvo!";
+
+    if(typeof atualizarAcessoADM === "function"){
+      atualizarAcessoADM();
+    }
+
+  }
+);
+
+
+/* =============================== */
+/* 📥 CARREGAR AO INICIAR */
+/* =============================== */
+
+carregarPerfil();
+
+if(typeof atualizarAcessoADM === "function"){
+  atualizarAcessoADM();
+}
+
+</script>
+  <!-- ====================================== -->
+<!-- 🫂 BOTÃO DE AMIGOS -->
+<!-- ====================================== -->
+
+<div id="botaoAmigos">🫂</div>
+
+<!-- ====================================== -->
+<!-- 👥 PAINEL DE AMIGOS -->
+<!-- ====================================== -->
+
+<div id="painelAmigos">
+
+  <div id="caixaAmigos">
+
+    <button id="fecharAmigos">✖</button>
+
+    <h2>👥 Amigos</h2>
+
+    <!-- SOLICITAR AMIZADE -->
+
+    <div id="solicitarAmizade">
+
+      <h3>➕ Adicionar amigo</h3>
+
+      <label>Nome da pessoa:</label>
+
+      <input
+        type="text"
+        id="nomeAmigo"
+        placeholder="Nome do jogador"
+        maxlength="20"
+      >
+
+      <label>Código da pessoa:</label>
+
+      <div id="codigoAmigoArea">
+
+        <span>#</span>
+
+        <input
+          type="text"
+          id="codigoAmigo"
+          placeholder="Código"
+          maxlength="8"
+        >
+
+      </div>
+
+      <button id="botaoSolicitar">
+        🤝 Solicitar amizade
+      </button>
+
+      <p id="mensagemAmigos"></p>
+
+    </div>
+
+
+    <!-- SOLICITAÇÕES -->
+
+    <div id="solicitacoesAmigos">
+
+      <h3>📩 Solicitações</h3>
+
+      <div id="listaSolicitacoes">
+
+        <p class="semSolicitacoes">
+          Nenhuma solicitação.
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- AMIGOS -->
+
+    <div id="listaAmigosArea">
+
+      <h3>👥 Meus amigos</h3>
+
+      <div id="listaAmigos">
+
+        <p class="semAmigos">
+          Você ainda não tem amigos.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<style>
+
+/* ====================================== */
+/* 🫂 BOTÃO */
+/* ====================================== */
+
+#botaoAmigos{
+
+  position:fixed;
+
+  /*
+    👇 COLOQUE AQUI A MESMA POSIÇÃO
+    QUE O SEU BOTÃO ADM USA
+  */
+
+  right:15px;
+  top:185px;
+
+  width:52px;
+  height:52px;
+
+  background:#222;
+
+  border:2px solid #555;
+
+  border-radius:50%;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  font-size:27px;
+
+  z-index:99990;
+
+  cursor:pointer;
+
+  user-select:none;
+
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.5);
+
+}
+
+
+#botaoAmigos:active{
+
+  transform:scale(.95);
+
+}
+
+
+/* ====================================== */
+/* 📋 PAINEL */
+/* ====================================== */
+
+#painelAmigos{
+
+  display:none;
+
+  position:fixed;
+
+  inset:0;
+
+  background:rgba(0,0,0,.75);
+
+  z-index:99989;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:20px;
+
+}
+
+
+/* ====================================== */
+/* 📦 CAIXA */
+/* ====================================== */
+
+#caixaAmigos{
+
+  position:relative;
+
+  width:100%;
+
+  max-width:370px;
+
+  max-height:90vh;
+
+  overflow-y:auto;
+
+  background:#181818;
+
+  color:white;
+
+  border:2px solid #444;
+
+  border-radius:18px;
+
+  padding:25px;
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.7);
+
+  animation:abrirAmigos .2s ease;
+
+}
+
+
+@keyframes abrirAmigos{
+
+  from{
+
+    transform:scale(.8);
+
+    opacity:0;
+
+  }
+
+  to{
+
+    transform:scale(1);
+
+    opacity:1;
+
+  }
+
+}
+
+
+/* ====================================== */
+/* ❌ FECHAR */
+/* ====================================== */
+
+#fecharAmigos{
+
+  position:absolute;
+
+  right:12px;
+
+  top:12px;
+
+  width:32px;
+
+  height:32px;
+
+  border:none;
+
+  border-radius:50%;
+
+  background:#333;
+
+  color:white;
+
+  font-size:16px;
+
+  cursor:pointer;
+
+}
+
+
+/* ====================================== */
+/* 📝 TÍTULO */
+/* ====================================== */
+
+#caixaAmigos h2{
+
+  text-align:center;
+
+  margin-top:5px;
+
+  margin-bottom:25px;
+
+}
+
+
+/* ====================================== */
+/* 📌 SUBTÍTULOS */
+/* ====================================== */
+
+#caixaAmigos h3{
+
+  margin-top:20px;
+
+  margin-bottom:12px;
+
+}
+
+
+/* ====================================== */
+/* 🏷️ LABEL */
+/* ====================================== */
+
+#caixaAmigos label{
+
+  display:block;
+
+  margin-top:12px;
+
+  margin-bottom:6px;
+
+  font-weight:bold;
+
+}
+
+
+/* ====================================== */
+/* ✏️ INPUT */
+/* ====================================== */
+
+#caixaAmigos input{
+
+  width:100%;
+
+  padding:12px;
+
+  border:none;
+
+  outline:none;
+
+  border-radius:10px;
+
+  background:#292929;
+
+  color:white;
+
+  font-size:16px;
+
+}
+
+
+#caixaAmigos input:focus{
+
+  outline:2px solid #555;
+
+}
+
+
+/* ====================================== */
+/* 🔢 CÓDIGO */
+/* ====================================== */
+
+#codigoAmigoArea{
+
+  display:flex;
+
+  align-items:center;
+
+  background:#292929;
+
+  border-radius:10px;
+
+  overflow:hidden;
+
+}
+
+
+#codigoAmigoArea span{
+
+  padding-left:13px;
+
+  font-size:18px;
+
+  font-weight:bold;
+
+}
+
+
+#codigoAmigoArea input{
+
+  background:transparent;
+
+  border-radius:0;
+
+}
+
+
+/* ====================================== */
+/* 🤝 BOTÃO SOLICITAR */
+/* ====================================== */
+
+#botaoSolicitar{
+
+  width:100%;
+
+  margin-top:18px;
+
+  padding:13px;
+
+  border:none;
+
+  border-radius:10px;
+
+  background:#2962ff;
+
+  color:white;
+
+  font-size:16px;
+
+  font-weight:bold;
+
+  cursor:pointer;
+
+}
+
+
+#botaoSolicitar:active{
+
+  transform:scale(.97);
+
+}
+
+
+/* ====================================== */
+/* 💬 MENSAGEM */
+/* ====================================== */
+
+#mensagemAmigos{
+
+  text-align:center;
+
+  font-size:14px;
+
+  min-height:18px;
+
+}
+
+
+/* ====================================== */
+/* 📩 SOLICITAÇÃO */
+/* ====================================== */
+
+.solicitacaoAmigo{
+
+  background:#292929;
+
+  border-radius:12px;
+
+  padding:14px;
+
+  margin-bottom:10px;
+
+}
+
+
+.textoSolicitacao{
+
+  font-size:16px;
+
+  margin-bottom:12px;
+
+}
+
+
+.botoesSolicitacao{
+
+  display:flex;
+
+  gap:8px;
+
+}
+
+
+.botaoAceitar{
+
+  flex:1;
+
+  padding:10px;
+
+  border:none;
+
+  border-radius:8px;
+
+  background:#24a148;
+
+  color:white;
+
+  font-weight:bold;
+
+  cursor:pointer;
+
+}
+
+
+.botaoRecusar{
+
+  flex:1;
+
+  padding:10px;
+
+  border:none;
+
+  border-radius:8px;
+
+  background:#d32f2f;
+
+  color:white;
+
+  font-weight:bold;
+
+  cursor:pointer;
+
+}
+
+
+/* ====================================== */
+/* 👥 AMIGO */
+/* ====================================== */
+
+.amigoItem{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:10px;
+
+  background:#292929;
+
+  border-radius:12px;
+
+  padding:12px;
+
+  margin-bottom:8px;
+
+}
+
+
+.amigoEmoji{
+
+  font-size:28px;
+
+}
+
+
+.amigoNome{
+
+  font-weight:bold;
+
+}
+
+
+.amigoCodigo{
+
+  color:#aaa;
+
+  font-size:13px;
+
+}
+
+
+.semAmigos,
+.semSolicitacoes{
+
+  text-align:center;
+
+  color:#888;
+
+  padding:10px;
+
+}
+
+</style>
+
+
+<script>
+
+/* ====================================== */
+/* 🔗 ELEMENTOS */
+/* ====================================== */
+
+const botaoAmigos =
+  document.getElementById("botaoAmigos");
+
+const painelAmigos =
+  document.getElementById("painelAmigos");
+
+const fecharAmigos =
+  document.getElementById("fecharAmigos");
+
+const nomeAmigo =
+  document.getElementById("nomeAmigo");
+
+const codigoAmigo =
+  document.getElementById("codigoAmigo");
+
+const botaoSolicitar =
+  document.getElementById("botaoSolicitar");
+
+const mensagemAmigos =
+  document.getElementById("mensagemAmigos");
+
+const listaSolicitacoes =
+  document.getElementById("listaSolicitacoes");
+
+const listaAmigos =
+  document.getElementById("listaAmigos");
+
+
+/* ====================================== */
+/* 🫂 ABRIR */
+/* ====================================== */
+
+botaoAmigos.addEventListener(
+  "click",
+  function(){
+
+    painelAmigos.style.display =
+      "flex";
+
+    atualizarSolicitacoes();
+
+    atualizarAmigos();
+
+  }
+);
+
+
+/* ====================================== */
+/* ❌ FECHAR */
+/* ====================================== */
+
+fecharAmigos.addEventListener(
+  "click",
+  function(){
+
+    painelAmigos.style.display =
+      "none";
+
+  }
+);
+
+
+/* ====================================== */
+/* 📦 PEGAR SOLICITAÇÕES */
+/* ====================================== */
+
+function pegarSolicitacoes(){
+
+  return JSON.parse(
+    localStorage.getItem(
+      "solicitacoesAmigos"
+    ) || "[]"
+  );
+
+}
+
+
+/* ====================================== */
+/* 👥 PEGAR AMIGOS */
+/* ====================================== */
+
+function pegarAmigos(){
+
+  return JSON.parse(
+    localStorage.getItem(
+      "meusAmigos"
+    ) || "[]"
+  );
+
+}
+
+
+/* ====================================== */
+/* 🤝 SOLICITAR */
+/* ====================================== */
+
+botaoSolicitar.addEventListener(
+  "click",
+  function(){
+
+    const nome =
+      nomeAmigo.value.trim();
+
+    const codigo =
+      codigoAmigo.value.trim();
+
+
+    if(!nome){
+
+      mensagemAmigos.style.color =
+        "#ff5555";
+
+      mensagemAmigos.textContent =
+        "❌ Digite o nome!";
+
+      return;
+
+    }
+
+
+    if(!codigo){
+
+      mensagemAmigos.style.color =
+        "#ff5555";
+
+      mensagemAmigos.textContent =
+        "❌ Digite o código!";
+
+      return;
+
+    }
+
+
+    if(!/^[0-9]+$/.test(codigo)){
+
+      mensagemAmigos.style.color =
+        "#ff5555";
+
+      mensagemAmigos.textContent =
+        "❌ O código deve ter apenas números!";
+
+      return;
+
+    }
+
+
+    /*
+      Aqui a solicitação é criada.
+
+      ⚠️ Atualmente fica salva apenas
+      neste navegador.
+    */
+
+    const solicitacoes =
+      pegarSolicitacoes();
+
+
+    solicitacoes.push({
+
+      nome:nome,
+
+      codigo:codigo,
+
+      emoji:"👤"
+
+    });
+
+
+    localStorage.setItem(
+      "solicitacoesAmigos",
+      JSON.stringify(solicitacoes)
+    );
+
+
+    mensagemAmigos.style.color =
+      "#7CFF7C";
+
+    mensagemAmigos.textContent =
+      "✅ Solicitação criada!";
+
+
+    nomeAmigo.value = "";
+
+    codigoAmigo.value = "";
+
+
+    atualizarSolicitacoes();
+
+  }
+);
+
+
+/* ====================================== */
+/* 📩 MOSTRAR SOLICITAÇÕES */
+/* ====================================== */
+
+function atualizarSolicitacoes(){
+
+  const solicitacoes =
+    pegarSolicitacoes();
+
+
+  listaSolicitacoes.innerHTML = "";
+
+
+  if(solicitacoes.length === 0){
+
+    listaSolicitacoes.innerHTML =
+      '<p class="semSolicitacoes">Nenhuma solicitação.</p>';
+
+    return;
+
+  }
+
+
+  solicitacoes.forEach(
+    function(solicitacao,index){
+
+      const div =
+        document.createElement("div");
+
+      div.className =
+        "solicitacaoAmigo";
+
+
+      div.innerHTML = `
+
+        <div class="textoSolicitacao">
+
+          "${solicitacao.nome}" quer ter sua amizade. 👤
+
+        </div>
+
+        <div class="botoesSolicitacao">
+
+          <button
+            class="botaoAceitar"
+            onclick="aceitarAmizade(${index})"
+          >
+            Aceita!
+          </button>
+
+          <button
+            class="botaoRecusar"
+            onclick="recusarAmizade(${index})"
+          >
+            Recusar.
+          </button>
+
+        </div>
+
+      `;
+
+
+      listaSolicitacoes.appendChild(div);
+
+    }
+  );
+
+}
+
+
+/* ====================================== */
+/* ✅ ACEITAR */
+/* ====================================== */
+
+function aceitarAmizade(index){
+
+  const solicitacoes =
+    pegarSolicitacoes();
+
+  const solicitacao =
+    solicitacoes[index];
+
+
+  const amigos =
+    pegarAmigos();
+
+
+  amigos.push({
+
+    nome:
+      solicitacao.nome,
+
+    codigo:
+      solicitacao.codigo,
+
+    emoji:
+      solicitacao.emoji || "👤"
+
+  });
+
+
+  localStorage.setItem(
+    "meusAmigos",
+    JSON.stringify(amigos)
+  );
+
+
+  solicitacoes.splice(
+    index,
+    1
+  );
+
+
+  localStorage.setItem(
+    "solicitacoesAmigos",
+    JSON.stringify(solicitacoes)
+  );
+
+
+  atualizarSolicitacoes();
+
+  atualizarAmigos();
+
+  if(typeof atualizarSeletoresADM === "function"){
+    atualizarSeletoresADM();
+  }
+
+}
+
+
+/* ====================================== */
+/* ❌ RECUSAR */
+/* ====================================== */
+
+function recusarAmizade(index){
+
+  const solicitacoes =
+    pegarSolicitacoes();
+
+
+  solicitacoes.splice(
+    index,
+    1
+  );
+
+
+  localStorage.setItem(
+    "solicitacoesAmigos",
+    JSON.stringify(solicitacoes)
+  );
+
+
+  atualizarSolicitacoes();
+
+}
+
+
+/* ====================================== */
+/* 👥 MOSTRAR AMIGOS */
+/* ====================================== */
+
+function atualizarAmigos(){
+
+  const amigos =
+    pegarAmigos();
+
+
+  listaAmigos.innerHTML = "";
+
+
+  if(amigos.length === 0){
+
+    listaAmigos.innerHTML =
+      '<p class="semAmigos">Você ainda não tem amigos.</p>';
+
+    return;
+
+  }
+
+
+  amigos.forEach(
+    function(amigo){
+
+      const div =
+        document.createElement("div");
+
+      div.className =
+        "amigoItem";
+
+
+      div.innerHTML = `
+
+        <div class="amigoEmoji">
+
+          ${amigo.emoji || "👤"}
+
+        </div>
+
+        <div>
+
+          <div class="amigoNome">
+
+            ${amigo.nome}
+
+          </div>
+
+          <div class="amigoCodigo">
+
+            #${amigo.codigo}
+
+          </div>
+
+        </div>
+
+      `;
+
+
+      listaAmigos.appendChild(div);
+
+    }
+  );
+
+}
+
+</script>
+  
+</body>
+</html>
