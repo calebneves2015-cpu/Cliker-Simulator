@@ -102,30 +102,9 @@ h1{
   right:8px;
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:3px;
+  font-size:25px;
   z-index:5;
-  width:150px;
-  pointer-events:none;
-}
-
-.petAtivoTabela{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:6px;
-  min-height:31px;
-  padding:4px 7px;
-  background:#222;
-  border:1px solid #555;
-  border-radius:9px;
-  font-size:20px;
-  box-shadow:0 2px 8px rgba(0,0,0,.35);
-}
-
-.petAtivoTabela span:last-child{
-  font-size:11px;
-  color:#aaa;
-  white-space:nowrap;
 }
 
 #reiniciar{
@@ -979,32 +958,9 @@ function criarPets(){
 
     botao.onclick=()=>{
 
-      if(pontos<p.preco){
-        mensagem("❌ Você não tem pontos suficientes!");
-        return;
-      }
+      if(pontos<p.preco)return;
 
-      if(petsLoja.length >= LIMITE_INVENTARIO){
-        mensagem("🎒 Seu inventário está cheio! 100/100");
-        return;
-      }
-
-      pontos-=p.preco;
-
-      petsComprados.push(index);
-
-      /* 🐾 Vai para o inventário, mas NÃO equipa */
-      const emoji = (p.nome || "🐾").match(/^\S+/)?.[0] || "🐾";
-
-      petsLoja.push({
-        emoji:emoji,
-        nome:p.nome,
-        multiplicador:p.multiplicador,
-        equipado:false
-      });
-
-      mensagem("🎉 " + p.nome + " foi para sua mochila!");
-      atualizar();
+      
 
     };
 
@@ -1022,32 +978,17 @@ function mostrarPets(){
 
   const div=document.getElementById("petsAtivos");
 
-  if(!div) return;
-
   div.innerHTML="";
 
-  /* Só mostra pets EQUIPADOS. Máximo: 5. */
-  const equipados = petsLoja
-    .filter(pet => pet && pet.equipado === true)
-    .slice(0,5);
+  petsComprados.forEach(index=>{
 
-  equipados.forEach((pet,index)=>{
-
-    const linha=document.createElement("div");
-    linha.className="petAtivoTabela";
-
-    const emoji=document.createElement("span");
-    emoji.textContent=pet.emoji || "🐾";
-
-    const nome=document.createElement("span");
-    nome.textContent="×" + String(pet.multiplicador) + " PT";
-
-    linha.appendChild(emoji);
-    linha.appendChild(nome);
-    div.appendChild(linha);
+    div.innerHTML+=pets[index].nome.split(" ")[0];
 
   });
 
+  petsLoja.forEach(pet=>{
+    div.innerHTML+=pet.emoji;
+  });
 }
 
 
@@ -1086,44 +1027,45 @@ function comprarGemas(quantidade,preco){
 function comprarPetAleatorio(){
 
   if(gemas<1){
-    mensagem("❌ Você precisa de 1 💎!");
-    return;
-  }
 
-  if(petsLoja.length >= LIMITE_INVENTARIO){
-    mensagem("🎒 Seu inventário está cheio! 100/100");
+    mensagem("❌ Você precisa de 1 💎!");
+
     return;
   }
 
   gemas--;
 
   let totalPeso=0;
-  petsAleatorios.forEach(p=>{ totalPeso+=p.peso; });
+
+  petsAleatorios.forEach(p=>{
+    totalPeso+=p.peso;
+  });
 
   let sorteio=Math.random()*totalPeso;
+
   let escolhido=null;
 
   for(const p of petsAleatorios){
+
     sorteio-=p.peso;
+
     if(sorteio<=0){
-      escolhido={
-        emoji:p.emoji,
-        nome:p.nome,
-        multiplicador:p.multiplicador,
-        equipado:false
-      };
+
+      escolhido=p;
       break;
+
     }
+
   }
 
-  if(!escolhido) return;
-
   petsLoja.push(escolhido);
+
+  multiplicadorPets*=escolhido.multiplicador;
 
   mensagem(
     "🎉 Você conseguiu "+escolhido.emoji+
     " "+escolhido.nome+
-    "! Foi para a mochila."
+    "! ×"+escolhido.multiplicador
   );
 
   atualizarLoja();
@@ -1152,25 +1094,21 @@ document.getElementById("comprarRadioativo").onclick=function(){
     return;
   }
 
-  if(petsLoja.length >= LIMITE_INVENTARIO){
-    mensagem("🎒 Seu inventário está cheio! 100/100");
-    return;
-  }
-
   gemas-=5;
 
   const radioativo={
     emoji:"☢️",
     nome:"Pet Radioativo",
     multiplicador:100n,
-    radioativo:true,
-    equipado:false
+    radioativo:true
   };
 
   petsLoja.push(radioativo);
 
+  multiplicadorPets*=100n;
+
   mensagem(
-    "☢️ PET RADIOATIVO foi para sua mochila!"
+    "☢️ PET RADIOATIVO ADQUIRIDO! ×100"
   );
 
   document.getElementById("comprarRadioativo").disabled=true;
@@ -1365,9 +1303,6 @@ function atualizar(){
   criarPets();
 
   atualizarLoja();
-
-  /* 💾 Garante o salvamento local do jogo */
-  salvarProgresso();
 
   /* ☁️ Atualiza os pontos no banco */
   clearTimeout(window.timerSalvarPontos);
@@ -5923,16 +5858,7 @@ function salvarProgresso() {
       petsComprados: petsComprados,
 
       // 🐾 PETS ESPECIAIS DA LOJA
-      // BigInt não pode ser salvo diretamente no JSON.
-      petsLoja: petsLoja.map(function(pet){
-        return {
-          emoji: pet.emoji || "🐾",
-          nome: pet.nome || "Pet",
-          multiplicador: String(pet.multiplicador ?? "1"),
-          equipado: pet.equipado === true,
-          radioativo: pet.radioativo === true
-        };
-      })
+      petsLoja: petsLoja
 
     };
 
@@ -5992,8 +5918,8 @@ function carregarProgresso() {
     multiplicador =
       BigInt(dados.multiplicador ?? "1");
 
-    // Recalculado pelos pets realmente equipados.
-    multiplicadorPets = 1n;
+    multiplicadorPets =
+      BigInt(dados.multiplicadorPets ?? "1");
 
 
     // 💎 GEMAS
@@ -6018,27 +5944,11 @@ function carregarProgresso() {
     // 🐾 PETS ESPECIAIS
     petsLoja =
       Array.isArray(dados.petsLoja)
-      ? dados.petsLoja.map(function(pet){
-          const petNormalizado = {
-            emoji: pet.emoji || "🐾",
-            nome: pet.nome || "Pet",
-            multiplicador: BigInt(pet.multiplicador ?? "1"),
-            equipado: pet.equipado === true,
-            radioativo: pet.radioativo === true
-          };
-
-          if(petNormalizado.equipado){
-            multiplicadorPets *= petNormalizado.multiplicador;
-          }
-
-          return petNormalizado;
-        })
+      ? dados.petsLoja
       : [];
 
 
     console.log("💾 Progresso carregado!");
-    console.log("🐾 Pets carregados:", petsLoja.length);
-    console.log("💰 Pontos carregados:", pontos.toString());
 
   } catch (erro) {
 
@@ -6070,23 +5980,9 @@ setInterval(function() {
 window.addEventListener(
   "beforeunload",
   function() {
-    salvarProgresso();
-  }
-);
 
-window.addEventListener(
-  "pagehide",
-  function() {
     salvarProgresso();
-  }
-);
 
-document.addEventListener(
-  "visibilitychange",
-  function() {
-    if(document.visibilityState === "hidden"){
-      salvarProgresso();
-    }
   }
 );
 
@@ -6743,25 +6639,16 @@ function equiparOuDesequiparPet(){
     pet.equipado = false;
 
     multiplicadorPets /=
-      BigInt(pet.multiplicador);
+      pet.multiplicador;
 
   }else{
 
     /* 🟢 EQUIPAR */
 
-    const quantidadeEquipados = petsLoja.filter(
-      p => p && p.equipado === true
-    ).length;
-
-    if(quantidadeEquipados >= 5){
-      mensagem("🐾 Você já tem 5 pets equipados!");
-      return;
-    }
-
     pet.equipado = true;
 
     multiplicadorPets *=
-      BigInt(pet.multiplicador);
+      pet.multiplicador;
 
   }
 
@@ -6860,7 +6747,7 @@ function confirmarVenda(){
   if(pet.equipado){
 
     multiplicadorPets /=
-      BigInt(pet.multiplicador);
+      pet.multiplicador;
 
   }
 
@@ -7658,9 +7545,7 @@ function iniciarFusao(){
 
       nome:"Sonhos",
 
-      multiplicador:150n,
-
-      equipado:false
+      multiplicador:150n
 
     };
 
@@ -7675,9 +7560,7 @@ function iniciarFusao(){
 
       nome:"Vírus",
 
-      multiplicador:20n,
-
-      equipado:false
+      multiplicador:20n
 
     };
 
@@ -7692,29 +7575,12 @@ function iniciarFusao(){
 
       nome:"Pixelado",
 
-      multiplicador:8n,
-
-      equipado:false
+      multiplicador:8n
 
     };
 
   }
 
-
-  /*
-     Se algum dos dois estava equipado,
-     remove o multiplicador antes de apagar.
-  */
-  const petSelecionado1 = petsLoja[indice1];
-  const petSelecionado2 = petsLoja[indice2];
-
-  if(petSelecionado1 && petSelecionado1.equipado){
-    multiplicadorPets /= BigInt(petSelecionado1.multiplicador);
-  }
-
-  if(petSelecionado2 && petSelecionado2.equipado){
-    multiplicadorPets /= BigInt(petSelecionado2.multiplicador);
-  }
 
   /*
      Remove primeiro o índice maior.
