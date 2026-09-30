@@ -1366,9 +1366,6 @@ function atualizar(){
 
   atualizarLoja();
 
-  /* 💾 Garante o salvamento local do jogo */
-  salvarProgresso();
-
   /* ☁️ Atualiza os pontos no banco */
   clearTimeout(window.timerSalvarPontos);
 
@@ -5923,16 +5920,7 @@ function salvarProgresso() {
       petsComprados: petsComprados,
 
       // 🐾 PETS ESPECIAIS DA LOJA
-      // BigInt não pode ser salvo diretamente no JSON.
-      petsLoja: petsLoja.map(function(pet){
-        return {
-          emoji: pet.emoji || "🐾",
-          nome: pet.nome || "Pet",
-          multiplicador: String(pet.multiplicador ?? "1"),
-          equipado: pet.equipado === true,
-          radioativo: pet.radioativo === true
-        };
-      })
+      petsLoja: petsLoja
 
     };
 
@@ -5992,8 +5980,8 @@ function carregarProgresso() {
     multiplicador =
       BigInt(dados.multiplicador ?? "1");
 
-    // Recalculado pelos pets realmente equipados.
-    multiplicadorPets = 1n;
+    multiplicadorPets =
+      BigInt(dados.multiplicadorPets ?? "1");
 
 
     // 💎 GEMAS
@@ -6018,27 +6006,11 @@ function carregarProgresso() {
     // 🐾 PETS ESPECIAIS
     petsLoja =
       Array.isArray(dados.petsLoja)
-      ? dados.petsLoja.map(function(pet){
-          const petNormalizado = {
-            emoji: pet.emoji || "🐾",
-            nome: pet.nome || "Pet",
-            multiplicador: BigInt(pet.multiplicador ?? "1"),
-            equipado: pet.equipado === true,
-            radioativo: pet.radioativo === true
-          };
-
-          if(petNormalizado.equipado){
-            multiplicadorPets *= petNormalizado.multiplicador;
-          }
-
-          return petNormalizado;
-        })
+      ? dados.petsLoja
       : [];
 
 
     console.log("💾 Progresso carregado!");
-    console.log("🐾 Pets carregados:", petsLoja.length);
-    console.log("💰 Pontos carregados:", pontos.toString());
 
   } catch (erro) {
 
@@ -6070,23 +6042,9 @@ setInterval(function() {
 window.addEventListener(
   "beforeunload",
   function() {
-    salvarProgresso();
-  }
-);
 
-window.addEventListener(
-  "pagehide",
-  function() {
     salvarProgresso();
-  }
-);
 
-document.addEventListener(
-  "visibilitychange",
-  function() {
-    if(document.visibilityState === "hidden"){
-      salvarProgresso();
-    }
   }
 );
 
